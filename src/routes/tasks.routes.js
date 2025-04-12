@@ -1,16 +1,12 @@
 import express from "express"
+import taskController from "../controller/tasks.controller.js";
+
 
 
 const router = express.Router();
 
-router.post('', async (req, res)=>{
-  res.status(200).json({"message" : "HANDLE TASK CREATION"})
-  
+router.post('', taskController.createTask)
 
-})
-router.get('', async (req, res)=>{
-  res.status(200).json({"message" : "HANDLE TASK RETRIEVAL"})
-  
-})
+router.get('', taskController.retrieveTask)
 export default router
 
