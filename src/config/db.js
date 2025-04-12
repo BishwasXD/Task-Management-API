@@ -1,36 +1,19 @@
-const { MongoClient } = require('mongodb');
-require('dotenv').config({ path: require('path').resolve('EBPearls-Task-Management', '../../../.env') });
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 
+dotenv.config();
 
-const USERNAME = process.env.USERNAME;
-const PASSWORD = process.env.PASSWORD;
-const CLUSTER = process.env.CLUSTER
-const DATABASE =  process.env.DATABASE;
-const TABLE = process.env.TABLE;
+const URI = process.env.URI
 
-
-const uri = `mongodb+srv://${USERNAME}:${PASSWORD}@${CLUSTER}.xkdkdq3.mongodb.net/`
-
-
-async function testConnection() {
-  const client = new MongoClient(uri);
-  
-  try {
-    await client.connect();
+export async function establishDataBaseConnection() {
+  try{
+    const connection = await mongoose.connect(URI);
+    console.log(`DATABASE connected :${connection.connection.host}`);
     console.log("database connected successfully");
 
-    const db = client.db(DATABASE);
-    const collection = db.collection(TABLE);
-
-    const document = await collection.findOne();
-    console.log("data found:", document);
-
   } catch (err) {
-    console.error("connection failed:", err);
-  }
-  finally {
-    client.close()
+    console.error(err);
+    process.exit(1);
   }
 }
 
-testConnection();
