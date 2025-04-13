@@ -6,5 +6,9 @@ export const Task = mongoose.model('Task', new mongoose.Schema({
   status: String,
   description: String,
   assignee: String
-}));
+},
+  {
+    timestamps: true
+  }
+));
 

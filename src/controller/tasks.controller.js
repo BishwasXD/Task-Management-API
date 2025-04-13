@@ -23,7 +23,31 @@ const taskController = {
 
   retrieveTask: async (req, res) => {
     try {
-      const tasks = await Task.find();
+      const {
+        page = 1,
+        limit = 10,
+        sortBy = 'createdAt',
+        order = 'desc',
+        priority,
+        status,
+        assignee
+      } = req.query;
+
+      const filter = {};
+      if (priority) filter.priority = priority;
+      if (status) filter.status = status;
+      if (assignee) filter.assignee = assignee;
+
+      const pageNum = parseInt(page);
+      const limitNum = parseInt(limit);
+
+      const sortOrder = order === 'asc' ? 1 : -1;
+
+      const tasks = await Task.find(filter)
+        .sort({ [sortBy]: sortOrder })
+        .skip((pageNum - 1) * limitNum)
+        .limit(parseInt(limitNum));
+
       res.status(200).json({ "message": "data retrieved successfully", "data": tasks })
     }
 

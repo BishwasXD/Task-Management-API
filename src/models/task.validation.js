@@ -6,6 +6,7 @@ export const taskSchema = Joi.object({
   status: Joi.string().valid('assigned', 'pending', 'completed').required(),  
   description: Joi.string().min(30).max(150).optional(),
   assignee: Joi.string().min(3).max(30).required(),
+  createdAt: Joi.date()
 
 })
 
