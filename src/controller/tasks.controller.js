@@ -1,38 +1,103 @@
+import { Types } from 'mongoose'
 import { Task } from "../models/task.model.js";
-import { taskSchema } from "../models/task.validation.js";
+import { taskSchema, taskUpdateSchema } from "../models/task.validation.js";
+
 
 
 const taskController = {
-  createTask: async(req, res) => {
+  createTask: async (req, res) => {
     console.log(req.body)
     const { error, value } = taskSchema.validate(req.body)
-    console.log("AFTER VALIDATION", value)
-    if (error){
-      return res.status(400).json({'message': error.details})
+    if (error) {
+      return res.status(400).json({ 'message': error.details })
     }
     try {
       Task.create(value);
-      res.status(201).json({"message": "Task created successfully", 'task': value})
+      res.status(201).json({ "message": "Task created successfully", 'task': value })
     }
-    catch (error){
-      res.status(500).json({"message": "Error occurred", "details": error})
+    catch (error) {
+      res.status(500).json({ "message": "Error occurred", "details": error })
     }
 
   },
 
-  retrieveTask: async(req, res) => {
-    try{
-    const tasks = await Task.find();
-    res.status(200).json({"message": "data retrieved successfully", "data": tasks})
+  retrieveTask: async (req, res) => {
+    try {
+      const tasks = await Task.find();
+      res.status(200).json({ "message": "data retrieved successfully", "data": tasks })
     }
-   
-  catch (error){
-      res.status(500).json({"message": "Error occurred", "details": error})
+
+    catch (error) {
+      res.status(500).json({ "message": "Error occurred", "details": error })
+    }
+
+  },
+
+  getTaskById: async (req, res) => {
+    const { id } = req.params
+
+    if (!Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ "message": 'Invalid task ID format' })
+    } try {
+      const task = await Task.findById(id)
+      if (!task) {
+        return res.status(400).json({ "message": "Task not found" })
+      }
+      res.status(200).json({ "message": "Task found", "task": task })
+
+    }
+    catch (error) {
+      res.status(500).json({ "message": "Error occured", "details": error })
+    }
+
+  },
+
+  updateTask: async (req, res) => {
+    const { id } = req.params;
+    const updates = req.body;
+    if (!Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ "message": 'Invalid task ID format' });
+    }
+
+    const { error, value } = taskUpdateSchema.validate(updates);
+    if (error) {
+      return res.status(400).json({ "message": 'Validation error', "error": error });
+    }
+
+    try {
+      const task = await Task.findByIdAndUpdate(id, value, {
+        new: true,
+      });
+
+      if (!task) {
+        return res.status(404).json({ "message": 'Task not found' });
+      }
+
+      res.status(200).json({ "message": 'Task updated successfully', "task": task });
+    } catch (error) {
+      res.status(500).json({ "message": 'Internal server error', "details": error });
+    }
+  },
+  deleteTask: async (req, res) => {
+    const { id } = req.params;
+    if (!Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ "message": 'Invalid task ID format' });
+    }
+
+    try {
+
+      const task = await Task.findByIdAndDelete(id)
+      console.log("what is returned", task)
+      if (task) {
+        res.status(200).json({ "message": "Task deleted successfully" });
+      }
+      res.status(400).json({ "message": "Task not found" })
+    } catch (error) {
+      res.status(500).json({ "message": 'Internal server error', "details": error });
     }
 
   }
-
-}
+};
 
 
 export default taskController

@@ -8,3 +8,9 @@ export const taskSchema = Joi.object({
   assignee: Joi.string().min(3).max(30).required(),
 
 })
+
+export const taskUpdateSchema = taskSchema.fork(
+  ['title', 'priority', 'status', 'description', 'assignee'],
+  field => field.optional()
+);
+
