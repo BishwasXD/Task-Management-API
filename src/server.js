@@ -20,7 +20,7 @@ establishDataBaseConnection().then(() => {
 
 app.use('/api/tasks/', taskRoutes);
 app.use((req, res) => {
-  res.status(404).json({ message: "Route not found" });
+  res.status(404).json({ message: "Route not found, avaibale route: /api/tasks" });
 });
 
 

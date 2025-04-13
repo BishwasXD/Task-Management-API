@@ -10,7 +10,11 @@ const taskController = {
     if (error) {
       return res.status(400).json({ 'message': "Validation error ", "error": error.details[0].message })
     }
-    try {
+    const existingTask = await Task.findOne({ title: value.title });
+
+    if (existingTask) {
+      return res.status(400).json({ 'message': 'A task with this title already exists' });
+    } try {
       const task = await Task.create(value);
       return res.status(201).json({ "message": "Task created successfully", 'task': task })
     }
