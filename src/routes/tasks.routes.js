@@ -5,11 +5,15 @@ import taskController from "../controller/tasks.controller.js";
 
 const router = express.Router();
 
-router.post('', taskController.createTask)
-router.get('', taskController.retrieveTask)
-router.get('/:id', taskController.getTaskById)
-router.put('/:id', taskController.updateTask)
-router.delete('/:id', taskController.deleteTask)
+
+router.route('/')
+  .post(taskController.createTask)
+  .get(taskController.retrieveTask);
+
+router.route('/:id')
+  .get(taskController.getTaskById)
+  .put(taskController.updateTask)
+  .delete(taskController.deleteTask);
 
 export default router
 

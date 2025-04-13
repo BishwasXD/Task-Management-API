@@ -6,17 +6,16 @@ import { taskSchema, taskUpdateSchema } from "../models/task.validation.js";
 
 const taskController = {
   createTask: async (req, res) => {
-    console.log(req.body)
     const { error, value } = taskSchema.validate(req.body)
     if (error) {
-      return res.status(400).json({ 'message': error.details })
+      return res.status(400).json({ 'message': "Validation error ", "error": error.details[0].message })
     }
     try {
-      Task.create(value);
-      res.status(201).json({ "message": "Task created successfully", 'task': value })
+      const task = await Task.create(value);
+      return res.status(201).json({ "message": "Task created successfully", 'task': task })
     }
     catch (error) {
-      res.status(500).json({ "message": "Error occurred", "details": error })
+      res.status(500).json({ "message": "Internal server error" })
     }
 
   },
@@ -48,11 +47,11 @@ const taskController = {
         .skip((pageNum - 1) * limitNum)
         .limit(parseInt(limitNum));
 
-      res.status(200).json({ "message": "data retrieved successfully", "data": tasks })
+      return res.status(200).json({ "message": "data retrieved successfully", "data": tasks })
     }
 
     catch (error) {
-      res.status(500).json({ "message": "Error occurred", "details": error })
+      res.status(500).json({ "message": "Internal server error" })
     }
 
   },
@@ -67,11 +66,11 @@ const taskController = {
       if (!task) {
         return res.status(400).json({ "message": "Task not found" })
       }
-      res.status(200).json({ "message": "Task found", "task": task })
+      return res.status(200).json({ "message": "Task found", "task": task })
 
     }
     catch (error) {
-      res.status(500).json({ "message": "Error occured", "details": error })
+      res.status(500).json({ "message": "Internal server error" })
     }
 
   },
@@ -85,7 +84,7 @@ const taskController = {
 
     const { error, value } = taskUpdateSchema.validate(updates);
     if (error) {
-      return res.status(400).json({ "message": 'Validation error', "error": error });
+      return res.status(400).json({ "message": 'Validation error', "error": error.details[0].message });
     }
 
     try {
@@ -97,9 +96,9 @@ const taskController = {
         return res.status(404).json({ "message": 'Task not found' });
       }
 
-      res.status(200).json({ "message": 'Task updated successfully', "task": task });
+      return res.status(200).json({ "message": 'Task updated successfully', "task": task });
     } catch (error) {
-      res.status(500).json({ "message": 'Internal server error', "details": error });
+      res.status(500).json({ "message": 'Internal server error' });
     }
   },
   deleteTask: async (req, res) => {
@@ -109,15 +108,14 @@ const taskController = {
     }
 
     try {
-
       const task = await Task.findByIdAndDelete(id)
       console.log("what is returned", task)
       if (task) {
-        res.status(200).json({ "message": "Task deleted successfully" });
+        return res.status(200).json({ "message": "Task deleted successfully", "task": task });
       }
-      res.status(400).json({ "message": "Task not found" })
+      return res.status(404).json({ "message": "Task not found" })
     } catch (error) {
-      res.status(500).json({ "message": 'Internal server error', "details": error });
+      res.status(500).json({ "message": 'Internal server error' });
     }
 
   }
